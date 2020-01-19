@@ -11,28 +11,32 @@ level = [
     '-                        -',
     '-                        -',
     '-                        -',
-    '-     --          --     -',
-    '-     --          --     -',
     '-                        -',
     '-                        -',
-    '-           -            -',
     '-                        -',
-    '-     -            -     -',
-    '-      -          -      -',
-    '-       ----------       -',
+    '-                        -',
+    '-                        -',
+    '-                        -',
+    '-                        -',
+    '-                        -',
+    '-                        -',
     '-                        -',
     '-                        -',
     '-                        -',
     '-                        -',
     '-                        -',
     '--------------------------'
-]                                                                   
+] 
+
 level.reverse()
 
 W, H = 780, 630
 BG_COLOR = (0.75, 0.75, 0.75, 1.0)
 
-RADIUS = 30
+RADIUS = 60
+RADIUS2 = RADIUS // 4
+RADIUS3 = RADIUS2 // 2
+RADIUS4 = RADIUS // 2
 SIZE = 30
 COLOR = (0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0)
 COLOR_2 = (1, 0, 0)
@@ -65,20 +69,27 @@ for raw in level:
 # start smile
 x1, y1 = W // 2, H // 2
 point_list = []
-for angle in (0, 360, 10):
-    rads = math.radians(angle)
-    s = RADIUS * math.sin(rads)
-    c = RADIUS * math.cos(rads)
-    point_list.append(x1 + c)
-    point_list.append(y1 + c)
-NP = len(point_list) // 2
-circle_list = batch.add(
-    NP, pyglet.gl.GL_TRIANGLE_FAN, foreground,
-    ('v2f', point_list),
-    ('c4f', (0, 1, 0, .5) * NP)
-)
 
+
+def smile(a, b, c, d, e, f):
+    for angle in range(a, b, c):
+        rads = math.radians(angle)
+        s = d * math.sin(rads)
+        c = d * math.cos(rads)
+        point_list.append(e + c)
+        point_list.append(f + s)
+    NP = len(point_list) // 2
+    circle_list = batch.add(
+        NP, pyglet.gl.GL_POINTS, foreground,
+        ('v2f', point_list),
+        ('c4f', (0, 1, 0, .5) * NP),
+    )
 # stop smile
+smile(0, 360, 6, RADIUS, x1, y1)
+smile(0, 360, 37, RADIUS3, x1+RADIUS2, y1+RADIUS2)
+smile(0, 360, 37, RADIUS3, x1-RADIUS2, y1+RADIUS2)
+smile(210, 340, 10, RADIUS2, x1, y1-RADIUS // 4)
+
 
 def update(dt):
     pass
@@ -91,6 +102,8 @@ def on_draw():
     counter.draw()
 
 
+gl.glPointSize(3)
+gl.glEnable(gl.GL_POINT_SMOOTH)
 gl.glClearColor(*BG_COLOR)
 gl.glEnable(gl.GL_BLEND)
 gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
