@@ -1,8 +1,7 @@
 import pyglet
 from pyglet import gl
-from pyglet.window import key
-from pyglet.gl import *
 import math
+from pyglet.window import key
 
 level = [
     '--------------------------',
@@ -33,7 +32,7 @@ level.reverse()
 W, H = 780, 630
 BG_COLOR = (0.75, 0.75, 0.75, 1.0)
 
-RADIUS = 60
+RADIUS = 20
 RADIUS2 = RADIUS // 4
 RADIUS3 = RADIUS2 // 2
 RADIUS4 = RADIUS // 2
@@ -52,6 +51,9 @@ batch = pyglet.graphics.Batch()
 background = pyglet.graphics.OrderedGroup(0)
 foreground = pyglet.graphics.OrderedGroup(1)
 
+keys = key.KeyStateHandler()
+window.push_handlers(keys)
+
 # start QUARD
 x = y = 0
 for raw in level:
@@ -66,6 +68,7 @@ for raw in level:
     y += SIZE
     x = 0
 # stop QUARD
+
 # start smile
 x1, y1 = W // 2, H // 2
 point_list = []
@@ -82,18 +85,24 @@ def smile(a, b, c, d, e, f):
     circle_list = batch.add(
         NP, pyglet.gl.GL_POINTS, foreground,
         ('v2f', point_list),
-        ('c4f', (0, 1, 0, .5) * NP),
+        ('c4f', [0, 1, 0, .5] * NP),
     )
+
+    face_list.append(circle_list)
+
 # stop smile
-smile(0, 360, 6, RADIUS, x1, y1)
-smile(0, 360, 37, RADIUS3, x1+RADIUS2, y1+RADIUS2)
-smile(0, 360, 37, RADIUS3, x1-RADIUS2, y1+RADIUS2)
-smile(210, 340, 10, RADIUS2, x1, y1-RADIUS // 4)
 
 
 def update(dt):
-    pass
-
+    if keys[key.LEFT]:
+        for ver in face_list:
+            ver.vertices[:]
+    if keys[key.RIGHT]:
+        print('!!!!!!!')
+    if keys[key.UP]:
+        print('!!!!!!!')
+    if keys[key.DOWN]:
+        print('!!!!!!!')
 
 @window.event
 def on_draw():
@@ -107,6 +116,13 @@ gl.glEnable(gl.GL_POINT_SMOOTH)
 gl.glClearColor(*BG_COLOR)
 gl.glEnable(gl.GL_BLEND)
 gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+
+face_list = []
+smile(0, 360, 6, RADIUS, x1, y1)
+smile(0, 360, 37, RADIUS3, x1+RADIUS2, y1+RADIUS2)
+smile(0, 360, 37, RADIUS3, x1-RADIUS2, y1+RADIUS2)
+smile(210, 340, 10, RADIUS2, x1, y1-RADIUS // 4)
+
 pyglet.clock.schedule_interval(update, 1 / 60.0)
 pyglet.app.run()
 
