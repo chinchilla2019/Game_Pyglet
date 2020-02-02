@@ -116,6 +116,7 @@ def update(dt):
         for ver in polygon_list:
             nx = max()
 
+
 @window.event
 def on_draw():
     window.clear()
