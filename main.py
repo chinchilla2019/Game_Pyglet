@@ -25,13 +25,14 @@ level = [
     '-                        -',
     '-                        -',
     '--------------------------'
-] 
+]
 
 level.reverse()
 
 W, H = 780, 630
 BG_COLOR = (0.75, 0.75, 0.75, 1.0)
 
+SPEED_CIRCLE = 3
 RADIUS = 20
 RADIUS2 = RADIUS // 4
 RADIUS3 = RADIUS2 // 2
@@ -55,15 +56,17 @@ keys = key.KeyStateHandler()
 window.push_handlers(keys)
 
 # start QUARD
+polygon_list = []
 x = y = 0
 for raw in level:
     for col in raw:
         if col == '-':
-            polygon = batch.add(       
+            polygon = batch.add(
                 4, pyglet.gl.GL_QUADS, background,
                 ('v2f', [x, y, x, y + SIZE, x + SIZE, y + SIZE, x + SIZE, y]),
                 ('c3f', COLOR)
             )
+            polygon_list.append(polygon)
         x += SIZE
     y += SIZE
     x = 0
@@ -89,6 +92,7 @@ def smile(a, b, c, d, e, f):
     )
 
     face_list.append(circle_list)
+    return circle_list
 
 # stop smile
 
@@ -96,13 +100,21 @@ def smile(a, b, c, d, e, f):
 def update(dt):
     if keys[key.LEFT]:
         for ver in face_list:
-            ver.vertices[:]
+            ver.vertices = [element - SPEED_CIRCLE * dtif index % 2 == 0 else element for index, element in enumerate(ver.vertices)]
     if keys[key.RIGHT]:
-        print('!!!!!!!')
+        for ver in face_list:
+            ver.vertices = [element + SPEED_CIRCLE * dt if index % 2 == 0 else element for index, element in enumerate(ver.vertices)]
     if keys[key.UP]:
-        print('!!!!!!!')
+        for ver in face_list:
+            ver.vertices = [element + SPEED_CIRCLE * dt if index % 2 != 0 else element for index, element in enumerate(ver.vertices)]
     if keys[key.DOWN]:
-        print('!!!!!!!')
+        for ver in face_list:
+            ver.vertices = [element - SPEED_CIRCLE * dt if index % 2 != 0 else element for index, element in enumerate(ver.vertices)]
+
+    # Collision
+    if circle_list.vertices[0] < W - RADIUS * 2:
+        for ver in polygon_list:
+            nx = max()
 
 @window.event
 def on_draw():
@@ -118,10 +130,10 @@ gl.glEnable(gl.GL_BLEND)
 gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 
 face_list = []
-smile(0, 360, 6, RADIUS, x1, y1)
-smile(0, 360, 37, RADIUS3, x1+RADIUS2, y1+RADIUS2)
-smile(0, 360, 37, RADIUS3, x1-RADIUS2, y1+RADIUS2)
-smile(210, 340, 10, RADIUS2, x1, y1-RADIUS // 4)
+circle_list = smile(0, 360, 6, RADIUS, x1, y1)
+smile(0, 360, 37, RADIUS3, x1 + RADIUS2, y1 + RADIUS2)
+smile(0, 360, 37, RADIUS3, x1 - RADIUS2, y1 + RADIUS2)
+smile(210, 340, 10, RADIUS2, x1, y1 - RADIUS // 4)
 
 pyglet.clock.schedule_interval(update, 1 / 60.0)
 pyglet.app.run()
