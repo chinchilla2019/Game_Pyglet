@@ -2,36 +2,38 @@ import pyglet
 from pyglet import gl
 import math
 from pyglet.window import key
+import sounddevice as sd
+import numpy as np
 
 level = [
-    '--------------------------',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '-                        -',
-    '--------------------------'
+    '----------------------------------------------------------------------------------------------------------------------------------',
+    '-                                                                                                                                -',
+    '-                                ----                                                                                            -',
+    '-                                                                                                                                -',
+    '-     --------                                                                                                   -----           -',
+    '-                                                                 ----                                                           -',
+    '-                                                                                                                                -',
+    '-                                                                                                                                -',
+    '-                                                                                                                                -',
+    '-                                          ------                                                                                -',
+    '-              -----                                                                                                             -',
+    '-                                                                                       ----                                     -',
+    '-                                                                                                                                -',
+    '-                                                                                                                                -',
+    '-                                                                                                                                -',
+    '-                                                   ------                                                                       -',
+    '-                                                                                                                 -----          -',
+    '-                                ------                                                                                          -',
+    '-                                                                                  -----                                         -',
+    '-                                                                                                                                -',
+    '-----------------------------------------------------------------------------------------------------------------------------------'
 ]
 
 level.reverse()
 
 W, H = 780, 630
 BG_COLOR = (0.75, 0.75, 0.75, 1.0)
-
+SPEED_BG = 60
 SPEED_CIRCLE = 3
 RADIUS = 20
 RADIUS2 = RADIUS // 4
@@ -114,7 +116,9 @@ def update(dt):
     # Collision
     if circle_list.vertices[0] < W - RADIUS * 2:
         for ver in polygon_list:
-            nx = max()
+            nx = max(ver.vertices[0], min(circle_list.vertices[0] - RADIUS, ver.vertices[0] + SIZE))
+            ny = max(ver.vertices[1], min(circle_list.vertices[1] - RADIUS, ver.vertices[1] + SIZE))
+            dtc = ()
 
 
 @window.event
@@ -122,6 +126,10 @@ def on_draw():
     window.clear()
     batch.draw()
     counter.draw()
+
+
+def audio_callback(indata, frames, time, status):
+    list_y.append(np.linalg.norm(indata) * 20)  # 20 коофицент микрофона
 
 
 gl.glPointSize(3)
@@ -136,8 +144,11 @@ smile(0, 360, 37, RADIUS3, x1 + RADIUS2, y1 + RADIUS2)
 smile(0, 360, 37, RADIUS3, x1 - RADIUS2, y1 + RADIUS2)
 smile(210, 340, 10, RADIUS2, x1, y1 - RADIUS // 4)
 
-pyglet.clock.schedule_interval(update, 1 / 60.0)
-pyglet.app.run()
+list_y = [H // 2] * 20
+stream = sd.InputStream(callback=audio_callback)
+with stream:
+    pyglet.clock.schedule_interval(update, 1 / 60.0)
+    pyglet.app.run()
 
 '''
 glLoadIdentity()
